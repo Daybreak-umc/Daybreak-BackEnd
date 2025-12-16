@@ -13,29 +13,23 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    private final String[] allowUris = {
-            "/swagger-ui/**",
-            "/swagger-resources/**",
+    private final String[] swaggerUris = {
+            "/swagger-ui/**", "/swagger-ui.html",
+            "/v3/api-docs/**", "/swagger-resources/**",
+            "/webjars/**", "/healthcheck"
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(allowUris).permitAll()
+                        .requestMatchers(swaggerUris).permitAll()  // Swagger 완전 허용
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()  // 개발용: 모든 요청 허용
                 )
-                .formLogin(form -> form
-                        .defaultSuccessUrl("/swagger-ui/index.html", true)
-                        .permitAll()
-                )
-                .csrf(AbstractHttpConfigurer::disable)
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll()
-                );
+                .formLogin(form -> form.disable())  // 폼 로그인 제거
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
