@@ -2,8 +2,10 @@ package umc9th_hackathon.daybreak;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class DaybreakApplication {
 
 	public static void main(String[] args) {
