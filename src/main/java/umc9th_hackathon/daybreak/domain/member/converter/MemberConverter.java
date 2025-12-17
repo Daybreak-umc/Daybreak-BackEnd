@@ -3,7 +3,7 @@ package umc9th_hackathon.daybreak.domain.member.converter;
 import umc9th_hackathon.daybreak.domain.member.dto.req.MemberSignupRequest;
 import umc9th_hackathon.daybreak.domain.member.dto.res.LoginResponse;
 import umc9th_hackathon.daybreak.domain.member.entity.Member;
-import umc9th_hackathon.daybreak.global.auth.enums.Role;
+import umc9th_hackathon.daybreak.global.enums.Role;
 
 public class MemberConverter {
 

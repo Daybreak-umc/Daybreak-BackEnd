@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import umc9th_hackathon.daybreak.global.jwt.JwtAuthenticationFilter;
 import umc9th_hackathon.daybreak.global.jwt.JwtTokenProvider;
+import umc9th_hackathon.daybreak.global.jwt.TokenBlacklist;
 
 @EnableWebSecurity
 @Configuration
@@ -20,6 +21,7 @@ import umc9th_hackathon.daybreak.global.jwt.JwtTokenProvider;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenBlacklist tokenBlacklist;
 
     private final String[] swaggerUris = {
             "/swagger-ui/**", "/swagger-ui.html",
@@ -43,7 +45,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, tokenBlacklist),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
