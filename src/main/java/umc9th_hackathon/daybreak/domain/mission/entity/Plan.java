@@ -17,9 +17,6 @@ public class Plan extends BaseEntity {
     @Column(name = "plan_id")
     private Long planId;
 
-    @Column(name = "mission_selection_id", nullable = false)
-    private Long missionSelectionId;
-
     @Column(name = "week_plan", length = 50, nullable = false)
     private String weekPlan;
 
