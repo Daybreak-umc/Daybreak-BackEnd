@@ -16,14 +16,21 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenBlacklist tokenBlacklist;
 
-    //토큰 검증 메서드
+    //토큰 검증 메서드 + 로그아웃 되서 블랙리스트 된 토큰까지 확인
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         String token = resolveToken(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
+
+            if (tokenBlacklist.isBlacklisted(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             Authentication auth = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }

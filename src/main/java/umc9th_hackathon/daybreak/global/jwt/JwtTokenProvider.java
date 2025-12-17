@@ -10,7 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import umc9th_hackathon.daybreak.global.auth.enums.Role;
+import umc9th_hackathon.daybreak.global.enums.Role;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long validityInMilliseconds = 60 * 60 * 1000 * 12; //12시간 토큰 유지
+    private final long validityInMilliseconds = 60 * 60 * 1000 * 6; //6시간 토큰 유지
 
     public String createToken(String email, Role role) {
         Claims claims = Jwts.claims().setSubject(email);
@@ -61,4 +61,12 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
+    public String getUserEmail(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
 }
