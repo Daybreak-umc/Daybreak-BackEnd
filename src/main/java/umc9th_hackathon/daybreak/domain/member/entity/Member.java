@@ -2,31 +2,30 @@ package umc9th_hackathon.daybreak.domain.member.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import umc9th_hackathon.daybreak.global.auth.enums.Role;
 import umc9th_hackathon.daybreak.global.entity.BaseEntity;
+import umc9th_hackathon.daybreak.global.enums.Role;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "member")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Table(name = "member")
 public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    @Column(name = "name", length = 10, nullable = false)
+    @Column(name = "name", nullable = false, length = 10)
     private String name;
 
-    @Column(name = "email", length = 50, nullable = false)
+    @Column(name = "email", nullable = false, length = 50)
     private String email;
 
-    @Column(name = "password", length = 100, nullable = false)
+    @Column(name = "password", nullable = false, length = 100)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -34,5 +33,6 @@ public class Member extends BaseEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
 
 }

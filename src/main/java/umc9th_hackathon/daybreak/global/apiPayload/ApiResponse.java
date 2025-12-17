@@ -9,7 +9,7 @@ import umc9th_hackathon.daybreak.global.apiPayload.code.BaseSuccessCode;
 
 @Getter
 @AllArgsConstructor
-@JsonPropertyOrder({"isSuccess", "code", "message", "result"})
+@JsonPropertyOrder({"success", "code", "message", "data"})
 public class ApiResponse<T> {
 
     @JsonProperty("success")
@@ -24,12 +24,12 @@ public class ApiResponse<T> {
     @JsonProperty("data")
     private T data;
 
-    // 성공한 경우 (result 포함)
+    // 성공한 경우 (data 포함)
     public static <T> ApiResponse<T> onSuccess(BaseSuccessCode code, T data) {
         return new ApiResponse<>(true, code.getCode(), code.getMessage(), data);
     }
 
-    // 실패한 경우 (result 포함)
+    // 실패한 경우 (data 포함)
     public static <T> ApiResponse<T> onFailure(BaseErrorCode code, T data) {
         return new ApiResponse<>(false, code.getCode(), code.getMessage(), data);
     }
