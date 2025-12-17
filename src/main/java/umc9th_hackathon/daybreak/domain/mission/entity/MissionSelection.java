@@ -20,17 +20,8 @@ public class MissionSelection extends BaseEntity {
     @Column(name = "mission_selection_id")
     private Long missionSelectionId;
 
-    @Id
-    @Column(name = "member_id")
-    private Long memberId;
-
-    @Id
-    @Column(name = "category_id")
-    private Long categoryId;
-
     @Column(name = "objective", length = 50, nullable = false)
     private String objective;
-
 
     // 연관 관계
     @ManyToOne(fetch = FetchType.LAZY)
