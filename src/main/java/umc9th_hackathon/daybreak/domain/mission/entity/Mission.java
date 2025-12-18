@@ -28,4 +28,11 @@ public class Mission extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "selection_id")
     private MissionSelection missionSelection;
+
+    public static Mission create(MissionSelection selection, String content) {
+        return Mission.builder()
+                .missionSelection(selection)
+                .content(content)
+                .build();
+    }
 }

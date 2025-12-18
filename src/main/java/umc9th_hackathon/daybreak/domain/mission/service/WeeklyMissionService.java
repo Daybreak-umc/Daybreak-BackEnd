@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import umc9th_hackathon.daybreak.domain.member.entity.Member;
 import umc9th_hackathon.daybreak.domain.member.repository.MemberRepository;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.WeeklyMissionCreateRequest;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.WeeklyMissionCreateResponse;
 import umc9th_hackathon.daybreak.domain.mission.entity.Category;
 import umc9th_hackathon.daybreak.domain.mission.entity.Mission;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
@@ -18,52 +19,50 @@ import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 import java.util.List;
 
+import static umc9th_hackathon.daybreak.global.apiPayload.code.MissionErrorCode.CATEGORY_NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class WeeklyMissionService {
 
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final MissionSelectionRepository missionSelectionRepository;
     private final MissionRepository missionRepository;
-
-    //OpenAI로부터 미션 3개 생성하는 클라이언트
     private final OpenAiMissionClient openAiMissionClient;
 
-    public List<String> createWeeklyMissions(String email, WeeklyMissionCreateRequest req) {
+    @Transactional
+    public WeeklyMissionCreateResponse createWeeklyMissionsByEmail(String email, WeeklyMissionCreateRequest req) {
 
-        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
-                .orElseThrow(() -> new GeneralException(MemberErrorCode.MEMBER_NOT_FOUND));
-
-        Category category = categoryRepository.findByCategoryName(req.getCategory())
+        Category category = categoryRepository.findByCategoryName(req.category())
                 .orElseThrow(() -> new GeneralException(MissionErrorCode.CATEGORY_NOT_FOUND));
 
-        // member 당 MissionSelection은 1개 전제
-        MissionSelection selection = missionSelectionRepository
-                .findByMember_MemberId(member.getMemberId())
-                .orElseGet(() -> MissionSelection.create(member, category, req.getGoal()));
+        Member member = (Member) memberRepository.findByEmail(email)
+                .orElseThrow(() -> new GeneralException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        selection.updateSelection(category, req.getGoal());
-        missionSelectionRepository.save(selection);
 
-        // 기존 주간 미션 전부 삭제 후 재생성
-        missionRepository.deleteAllByMissionSelection(selection);
 
-        // AI로 미션 3개 생성 (실패 시 fallback)
-        List<String> missionTexts = openAiMissionClient.generateWeeklyMissions(req.getCategory(), req.getGoal());
+        // 멤버당 MissionSelection 1개 유지하는 구조면 이게 제일 안전함
+        MissionSelection selection = missionSelectionRepository.findByMember_MemberId(member.getMemberId())
+                .orElseGet(() -> missionSelectionRepository.save(
+                        MissionSelection.create(member, category, req.goal())
+                ));
 
-        List<Mission> missions = missionTexts.stream()
-                .map(text -> Mission.builder()
-                        .content(text)
-                        .isSuccess(false)
-                        .missionSelection(selection)
-                        .build()
-                ).toList();
+        // 기존 selection이면 최신 목표/카테고리로 갱신
+        selection.updateSelection(category, req.goal());
+
+        // OpenAI로 미션 3개 생성
+        List<String> missionsText = openAiMissionClient.generateWeeklyMissions(req.category(), req.goal());
+
+        // 중복 방지: 기존 미션 삭제 후 새로 저장
+        missionRepository.deleteByMissionSelection(selection);
+
+        List<Mission> missions = missionsText.stream()
+                .map(text -> Mission.create(selection, text))
+                .toList();
 
         missionRepository.saveAll(missions);
 
-        // 응답용으로 텍스트 리스트 반환
-        return missionTexts;
+        return new WeeklyMissionCreateResponse(missionsText);
     }
 }
