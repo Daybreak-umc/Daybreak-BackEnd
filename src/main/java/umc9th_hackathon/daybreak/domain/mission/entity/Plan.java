@@ -32,10 +32,8 @@ public class Plan extends BaseEntity {
     @Column(name = "year_plan", length = 50, nullable = false)
     private String yearPlan;
 
-
-
     // 연관 관계
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mission_selection_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mission_selection_id",nullable = false,unique = true)
     private MissionSelection missionSelection;
 }
