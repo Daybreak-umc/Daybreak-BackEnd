@@ -1,0 +1,19 @@
+package umc9th_hackathon.daybreak.domain.mission.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
+
+import java.util.List;
+
+public interface MissionSelectionRepository extends JpaRepository<MissionSelection, Long> {
+    @Query("""
+    SELECT DISTINCT s
+    FROM MissionSelection s
+    JOIN FETCH s.memberMissions m
+    JOIN FETCH s.category c
+    WHERE s.member.memberId = :memberId
+    """)
+    List<MissionSelection> findByMemberIdWithMissionAndCategory(@Param("memberId") Long memberId);
+}
