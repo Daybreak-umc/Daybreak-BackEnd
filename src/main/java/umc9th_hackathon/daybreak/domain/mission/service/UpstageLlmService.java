@@ -1,6 +1,7 @@
 package umc9th_hackathon.daybreak.domain.mission.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
@@ -9,18 +10,24 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
+import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
+import umc9th_hackathon.daybreak.domain.mission.entity.Plan;
 import umc9th_hackathon.daybreak.domain.mission.exception.InvalidCategoryGoalException;
+import umc9th_hackathon.daybreak.domain.mission.repository.PlanRepository;
 
 @Service
 public class UpstageLlmService {
     private final WebClient webClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final PlanRepository planRepository;
 
-    public UpstageLlmService(WebClient upstageWebClient) {
+    public UpstageLlmService(WebClient upstageWebClient, PlanRepository planRepository) {
         this.webClient = upstageWebClient;
+        this.planRepository = planRepository;
     }
 
-    public PlanResDTO getCleanPlan(String category, String goal) {
+    @Transactional
+    public PlanResDTO.PlanDto getCleanPlan(String category, String goal, MissionSelection missionSelection) {
         // 1. 카테고리/Goal 관련성 검증
         validateCategoryGoal(category, goal);
 
@@ -28,9 +35,9 @@ public class UpstageLlmService {
                 Map.of("role", "system", "content",
                         """
                         당신은 %s 분야 전문 코치입니다. 사용자가 %s 목표를 달성하도록
-                        다음 JSON 형식으로 1주일, 1개월, 3개월, 6개월, 1년 내 모습을 작성하세요.
-                        자연스럽게 문장을 작성해주세요.
-                        최대 80자까지 작성할 수 있습니다.
+                        사용자가 %s 목표를 달성하도록 다음 JSON 형식으로 ‘감정이 느껴지는 짧은 문장’으로 작성하세요.
+                        각 문장은 80자 이내로, 자연스럽고 사람의 말처럼 따뜻하게 표현해주세요.
+                        숫자나 수치를 나열하지 말고, 변화의 감정과 일상의 변화를 중심으로 작성하세요.
 
                         
                         JSON만 출력 (이스케이프/추가텍스트 완전 금지):
@@ -44,10 +51,10 @@ public class UpstageLlmService {
                         
                         예시 모습 : 운동에 흥미를 느끼기 시작합니다.
                         매주 운동을 나갈 수 있는 힘이 생깁니다.
-                        """.formatted(category, goal, goal, goal, goal, goal, goal)
+                        """.formatted(category, goal, goal, goal, goal, goal, goal, goal)
                 ),
                 Map.of("role", "user", "content",
-                        "%s 분야에서 %s이 되는 단계별 로드맵을 만들어주세요.".formatted(category, goal))
+                        "%s 분야에서 %s이 되는 내 모습을 상상해서 만들어주세요.".formatted(category, goal))
         );
 
         Map<String, Object> request = Map.of(
@@ -66,13 +73,29 @@ public class UpstageLlmService {
                 .block();
 
         String content = extractContent(rawResponse);
-        Map<String, String> plan = parseTimeline(content);
+        Map<String, String> planMap = parseTimeline(content);
 
-        return PlanResDTO.builder()
-                .category(category)
-                .goal(goal)
-                .plan(plan)
+        // Plan 엔티티 생성 및 DB 저장
+        Plan plan = Plan.builder()
+                .weekPlan(planMap.get("1주일"))
+                .month1Plan(planMap.get("1개월"))
+                .month3Plan(planMap.get("3개월"))
+                .month6Plan(planMap.get("6개월"))
+                .yearPlan(planMap.get("1년"))
+                .missionSelection(missionSelection)
                 .build();
+
+        Plan savedPlan = planRepository.save(plan);
+
+        // PlanResponse.PlanDto로 변환하여 반환
+        return new PlanResDTO.PlanDto(
+                savedPlan.getWeekPlan(),
+                savedPlan.getMonth1Plan(),
+                savedPlan.getMonth3Plan(),
+                savedPlan.getMonth6Plan(),
+                savedPlan.getYearPlan(),
+                savedPlan.getCreateTime()
+        );
     }
 
     private void validateCategoryGoal(String category, String goal) {

@@ -26,4 +26,4 @@ spring:
       options:
         timeout: 120s
 
-upstage.api-key: up_JUoc8JvMbGHm1tdwBIGUQNeP4cN3X
+upstage.api-key: ${UPSTAGE_API_KEY}

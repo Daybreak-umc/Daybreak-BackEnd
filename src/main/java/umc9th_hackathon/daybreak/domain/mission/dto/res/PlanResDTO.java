@@ -1,12 +1,14 @@
 package umc9th_hackathon.daybreak.domain.mission.dto.res;
 
-import lombok.Builder;
+import java.time.LocalDateTime;
 
-import java.util.Map;
-
-@Builder
-public record PlanResDTO(
-        String category,
-        String goal,
-        Map<String, String> plan
-) {}
+public class PlanResDTO {
+    public record PlanDto(
+            String week,
+            String month1,
+            String month3,
+            String month6,
+            String year,
+            LocalDateTime createTime
+    ) {}
+}
