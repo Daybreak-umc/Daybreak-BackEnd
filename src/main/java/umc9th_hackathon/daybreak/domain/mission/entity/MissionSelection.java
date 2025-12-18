@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter
 @Table(name = "mission_selection")
 public class MissionSelection extends BaseEntity {
 
@@ -24,7 +24,8 @@ public class MissionSelection extends BaseEntity {
     @Column(name = "objective", length = 50, nullable = false)
     private String objective;
 
-    // 연관 관계
+    /* 연관 관계 */
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
@@ -37,11 +38,12 @@ public class MissionSelection extends BaseEntity {
     @OneToMany(mappedBy = "missionSelection", cascade = CascadeType.ALL)
     private List<Mission> memberMissions = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "missionSelection", cascade = CascadeType.ALL)
-    private List<Plan> plans = new ArrayList<>();
+    // MissionSelection 당 Plan 1개 (develop 기준)
+    @OneToOne(mappedBy = "missionSelection", cascade = CascadeType.ALL, optional = false)
+    private Plan plan;
 
-    //변경 메서드
+    /* 비즈니스 메서드 */
+
     public void updateSelection(Category category, String objective) {
         this.category = category;
         this.objective = objective;

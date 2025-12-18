@@ -12,4 +12,3 @@ public interface MissionRepository extends JpaRepository<Mission, Long> {
 
     void deleteAllByMissionSelection(MissionSelection missionSelection);
 }
-
