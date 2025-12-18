@@ -20,21 +20,18 @@ public class UserSetupService {
     private final CategoryRepository categoryRepository;
     private final MissionSelectionRepository missionSelectionRepository;
 
-    public void setup(Long memberId, UserSetupRequest req) {
-        Member member = memberRepository.findById(memberId)
+    public void setupByEmail(String email, UserSetupRequest req) {
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         Category category = categoryRepository.findByCategoryName(req.getCategory())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
 
         MissionSelection selection = missionSelectionRepository
-                .findByMember_MemberId(memberId)
+                .findByMember_MemberId(member.getMemberId())
                 .orElseGet(() -> MissionSelection.create(member, category, req.getGoal()));
 
         selection.updateSelection(category, req.getGoal());
-
         missionSelectionRepository.save(selection);
-
     }
 }
-
