@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import umc9th_hackathon.daybreak.domain.mission.converter.PlanConverter;
-import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResponse;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
 import umc9th_hackathon.daybreak.domain.mission.entity.Plan;
 import umc9th_hackathon.daybreak.domain.mission.exception.PlanErrorCode;
@@ -19,7 +19,7 @@ import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 public class PlanQueryService {
     private final MissionSelectionRepository missionSelectionRepository;
 
-    public PlanResponse.PlanDto getPlan(Authentication authentication, Long missionSelectionId) {
+    public PlanResDTO.PlanDto getPlan(Authentication authentication, Long missionSelectionId) {
         // 1. 인증 객체 null 체크 (토큰이 없으면 null입니다)
         if (authentication == null) {
             throw new GeneralException(GeneralErrorCode.UNAUTHORIZED);

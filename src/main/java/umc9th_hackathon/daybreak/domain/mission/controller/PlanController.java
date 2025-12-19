@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.RandomGoalReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
-import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResponse;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.RandomGoalResDTO;
 import umc9th_hackathon.daybreak.domain.mission.service.PlanService;
 import umc9th_hackathon.daybreak.domain.mission.service.PlanQueryService;
@@ -47,7 +46,7 @@ public class PlanController implements PlanControllerDocs {
     }
 
     @GetMapping("/timeline")
-    public ApiResponse<PlanResponse.PlanDto> getMissionTimeline(
+    public ApiResponse<PlanResDTO.PlanDto> getMissionTimeline(
             Authentication authentication,
             @RequestParam(value="planId" , required = false) Long missionSelectionId) {
 
