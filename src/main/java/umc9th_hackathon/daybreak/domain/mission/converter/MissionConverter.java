@@ -23,4 +23,11 @@ public class MissionConverter {
 
         return new MissionResponse.MissionGroupListDto(groupDtos);
     }
+
+    public MissionResponse.MissionCompleteDto toMissionCompleteDto(Mission mission) {
+        return new MissionResponse.MissionCompleteDto(
+                mission.getMissionId(),
+                mission.getUpdateTime()
+        );
+    }
 }

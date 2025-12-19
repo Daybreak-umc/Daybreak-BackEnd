@@ -4,8 +4,10 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
 import umc9th_hackathon.daybreak.global.apiPayload.code.BaseErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
@@ -64,6 +66,34 @@ public class GeneralExceptionAdvice {
         ApiResponse<Map<String, String>> errorResponse = ApiResponse.onFailure(code, errors);
 
         return ResponseEntity.status(code.getStatus()).body(errorResponse);
+    }
+
+    //필수 파라미터 미전송 처리
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    protected ResponseEntity<ApiResponse<String>> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException ex
+    ) {
+        BaseErrorCode code = GeneralErrorCode.BAD_REQUEST;
+
+        return ResponseEntity.status(code.getStatus())
+                .body(ApiResponse.onFailure(
+                        code,
+                        ex.getParameterName() + " 파라미터가 필요합니다."
+                ));
+    }
+
+    //파라미터 타입 실수 처리
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    protected ResponseEntity<ApiResponse<String>> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException ex
+    ) {
+        BaseErrorCode code = GeneralErrorCode.BAD_REQUEST;
+
+        return ResponseEntity.status(code.getStatus())
+                .body(ApiResponse.onFailure(
+                        code,
+                        "요청 파라미터 형식이 올바르지 않습니다."
+                ));
     }
 
     // 그 외의 정의되지 않은 모든 예외 처리
