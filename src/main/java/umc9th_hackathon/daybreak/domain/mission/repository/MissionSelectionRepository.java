@@ -31,7 +31,7 @@ public interface MissionSelectionRepository extends JpaRepository<MissionSelecti
         WHERE s.member.memberId = :memberId
     """)
     List<MissionSelection> findByMemberIdWithMissionAndCategory(@Param("memberId") Long memberId);
-    
+
     Optional<MissionSelection> findByMemberAndCategoryAndObjective(
             Member member, Category category, String objective);
 
