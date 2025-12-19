@@ -5,18 +5,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
+import org.springframework.web.bind.annotation.*;
+import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.RandomGoalReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.RandomGoalResDTO;
 import umc9th_hackathon.daybreak.domain.mission.service.PlanService;
 import umc9th_hackathon.daybreak.domain.mission.service.PlanQueryService;
+import umc9th_hackathon.daybreak.domain.mission.service.PlanService;
 import umc9th_hackathon.daybreak.domain.mission.service.RandomGoalService;
 import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralSuccessCode;
 
 @RestController
-@RequestMapping("/api/v1/mission")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/mission")
 public class PlanController implements PlanControllerDocs {
 
     private final PlanService planService;
@@ -30,7 +34,7 @@ public class PlanController implements PlanControllerDocs {
             Authentication authentication) {
 
         PlanResDTO.PlanDto plan = planService.createPlan(request, authentication);
-        
+
         return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, plan);
     }
 
@@ -44,15 +48,30 @@ public class PlanController implements PlanControllerDocs {
 
         return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, randomgoal);
     }
+    }
+
+
+    @Override
+    @PostMapping("/plan")
+    public ApiResponse<PlanResDTO.PlanDto> createPlan(
+            @RequestBody @Valid PlanReqDTO request,
+            Authentication authentication) {
+
+        PlanResDTO.PlanDto plan = planService.createPlan(request, authentication);
+
+        return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, plan);
+    }
+
 
     @GetMapping("/timeline")
     public ApiResponse<PlanResDTO.PlanDto> getMissionTimeline(
             Authentication authentication,
-            @RequestParam(value="planId" , required = false) Long missionSelectionId) {
-
-        return ApiResponse.onSuccess(
+            @RequestParam(value="planId") Long missionSelectionId)
+     {
+         return ApiResponse.onSuccess(
                 GeneralSuccessCode.REQUEST_OK,
                 planQueryService.getPlan(authentication, missionSelectionId)
         );
     }
+
 }

@@ -16,7 +16,6 @@ import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
 public interface PlanControllerDocs {
 
     @Operation(summary = "Plan 설정", description = "사용자가 설정한 카테고리와 목표 토대로 Plan을 설정합니다.")
-
     ApiResponse<PlanResDTO.PlanDto> createPlan(PlanReqDTO request, Authentication authentication);
 
     @PostMapping("/api/v1/mission/random")
