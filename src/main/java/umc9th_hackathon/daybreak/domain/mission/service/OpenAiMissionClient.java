@@ -20,7 +20,7 @@ public class OpenAiMissionClient {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${openai.api.key}") // ✅ 너 yml이 openai.api.key: ${OPENAI_API_KEY} 이거라서 점(.)이 맞음
+    @Value("${openai.api.key}")
     private String apiKey;
 
     @Value("${openai.model}")
@@ -28,7 +28,6 @@ public class OpenAiMissionClient {
 
     public List<String> generateWeeklyMissions(String category, String goal) {
 
-        // ✅ json_object로 받을 거라서 프롬프트도 객체 형태로 강제
         String prompt = """
                 You are a helpful assistant that creates weekly missions.
 
