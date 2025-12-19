@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
+import java.util.Optional;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,4 +32,6 @@ public interface MissionSelectionRepository extends JpaRepository<MissionSelecti
 >>>>>>> parent of a0d311e (Revert "[Feat] 주간 미션 3개 생성 API 구현 (OpenAI 연동)")
     """)
     List<MissionSelection> findByMemberIdWithMissionAndCategory(@Param("memberId") Long memberId);
+    Optional<MissionSelection> findByMember_MemberId(Long memberId);
+
 }

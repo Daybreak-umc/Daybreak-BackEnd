@@ -31,6 +31,7 @@ public class UserSetupService {
         Category category = categoryRepository.findByCategoryName(req.getCategory())
                 .orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND));
 
+        // 기존 선택이 있으면 업데이트, 없으면 생성
         MissionSelection selection = missionSelectionRepository
                 .findByMember_MemberId(member.getMemberId())
                 .orElseGet(() -> MissionSelection.create(member, category, req.getGoal()));
