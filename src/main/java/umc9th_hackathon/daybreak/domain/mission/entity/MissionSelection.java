@@ -33,6 +33,7 @@ public class MissionSelection extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @Builder.Default
     @OneToMany(mappedBy = "missionSelection", cascade = CascadeType.ALL)
     private List<Mission> memberMissions = new ArrayList<>();
 
