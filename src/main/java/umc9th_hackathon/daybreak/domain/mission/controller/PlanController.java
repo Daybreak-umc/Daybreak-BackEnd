@@ -37,11 +37,9 @@ public class PlanController implements PlanControllerDocs {
     @GetMapping("/api/v1/missions/timeline")
     public ApiResponse<PlanResDTO.PlanDto> getMissionTimeline(
             Authentication authentication,
-            @RequestParam(value="planId" , required = false) Long missionSelectionId)
-    {
-
-
-        return ApiResponse.onSuccess(
+            @RequestParam(value="planId") Long missionSelectionId)
+     {
+         return ApiResponse.onSuccess(
                 GeneralSuccessCode.REQUEST_OK,
                 planQueryService.getPlan(authentication, missionSelectionId)
         );

@@ -6,10 +6,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum MissionErrorCode implements BaseErrorCode {
+public enum MissionSuccessCode implements BaseSuccessCode {
 
-    DUPLICATE_GOAL(HttpStatus.CONFLICT, "MISSION409_1", "이미 존재하는 목표입니다."),
-    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "MISSION404_1", "존재하지 않는 카테고리입니다.");
+    MISSION_CREATED(HttpStatus.OK, "COMMON_200", "미션이 성공적으로 제작되었습니다.");
 
     private final HttpStatus status;
     private final String code;

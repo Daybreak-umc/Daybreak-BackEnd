@@ -25,11 +25,13 @@ public class UserSetupService {
 
     public void setupByEmail(String email, UserSetupRequest req) {
 
+
         //회원 조회 실패 시: 커스텀 예외로 처리 (루이 코멘트 반영)
         Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new GeneralException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         //카테고리 조회 실패 시: 일단 공통 NOT_FOUND로 처리 (원하면 CategoryErrorCode 따로 만들면 더 좋음)
+
         Category category = categoryRepository.findByCategoryName(req.getCategory())
                 .orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND));
 

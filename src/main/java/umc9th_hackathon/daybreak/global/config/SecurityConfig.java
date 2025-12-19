@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import umc9th_hackathon.daybreak.global.jwt.JwtAuthenticationFilter;
 import umc9th_hackathon.daybreak.global.jwt.JwtTokenProvider;
 import umc9th_hackathon.daybreak.global.jwt.TokenBlacklist;
@@ -19,7 +20,7 @@ import umc9th_hackathon.daybreak.global.jwt.TokenBlacklist;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+    private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenBlacklist tokenBlacklist;
 
@@ -36,8 +37,14 @@ public class SecurityConfig {
                         .requestMatchers(swaggerUris).permitAll() //Swagger 완전 허용
                         .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login").permitAll()// 로그인, 회원가입 허용
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().permitAll()  // 개발용: 모든 요청 허용
+                        .anyRequest().authenticated()  // 개발용: 모든 요청 허용
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) ->
+                                handlerExceptionResolver.resolveException(request, response, null, authException)
+                        )
+                )
+
 
                 .formLogin(form -> form.disable())  // 폼 로그인 제거
                 .httpBasic(AbstractHttpConfigurer::disable)

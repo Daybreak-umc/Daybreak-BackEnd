@@ -12,12 +12,17 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MissionSelectionRepository extends JpaRepository<MissionSelection, Long> {
+
+    // weekly_missions에서 쓰는 조회 (Optional 1개)
+    Optional<MissionSelection> findByMember_MemberId(Long memberId);
+
+    // develop 쪽에서 쓰는 fetch join 조회 (List)
     @Query("""
-    SELECT DISTINCT s
-    FROM MissionSelection s
-    JOIN FETCH s.memberMissions m
-    JOIN FETCH s.category c
-    WHERE s.member.memberId = :memberId
+        SELECT DISTINCT s
+        FROM MissionSelection s
+        JOIN FETCH s.memberMissions m
+        JOIN FETCH s.category c
+        WHERE s.member.memberId = :memberId
     """)
     List<MissionSelection> findByMemberIdWithMissionAndCategory(@Param("memberId") Long memberId);
     
