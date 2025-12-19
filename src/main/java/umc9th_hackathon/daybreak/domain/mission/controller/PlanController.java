@@ -48,20 +48,6 @@ public class PlanController implements PlanControllerDocs {
 
         return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, randomgoal);
     }
-    }
-
-
-    @Override
-    @PostMapping("/plan")
-    public ApiResponse<PlanResDTO.PlanDto> createPlan(
-            @RequestBody @Valid PlanReqDTO request,
-            Authentication authentication) {
-
-        PlanResDTO.PlanDto plan = planService.createPlan(request, authentication);
-
-        return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, plan);
-    }
-
 
     @GetMapping("/timeline")
     public ApiResponse<PlanResDTO.PlanDto> getMissionTimeline(
