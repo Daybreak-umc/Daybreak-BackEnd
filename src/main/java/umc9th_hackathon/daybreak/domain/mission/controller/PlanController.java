@@ -6,12 +6,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
+import org.springframework.web.bind.annotation.*;
+import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
+import umc9th_hackathon.daybreak.domain.mission.dto.req.RandomGoalReqDTO;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.RandomGoalResDTO;
+import umc9th_hackathon.daybreak.domain.mission.service.PlanService;
 import umc9th_hackathon.daybreak.domain.mission.service.PlanQueryService;
 import umc9th_hackathon.daybreak.domain.mission.service.PlanService;
+import umc9th_hackathon.daybreak.domain.mission.service.RandomGoalService;
 import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
-import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralSuccessCode;
-import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +25,7 @@ public class PlanController implements PlanControllerDocs {
 
     private final PlanService planService;
     private final PlanQueryService planQueryService;
-
+    private final RandomGoalService randomGoalService;
 
     @Override
     @PostMapping("/plan")
@@ -33,8 +38,18 @@ public class PlanController implements PlanControllerDocs {
         return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, plan);
     }
 
+    @PostMapping("/random")
+    @Override
+    public ApiResponse<RandomGoalResDTO.RandomGoalDTO> createRandom(
+            @RequestBody @Valid RandomGoalReqDTO request,
+            Authentication authentication) {
 
-    @GetMapping("/api/v1/missions/timeline")
+        RandomGoalResDTO.RandomGoalDTO randomgoal = randomGoalService.createRandomGoal(request, authentication);
+
+        return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, randomgoal);
+    }
+
+    @GetMapping("/timeline")
     public ApiResponse<PlanResDTO.PlanDto> getMissionTimeline(
             Authentication authentication,
             @RequestParam(value="planId") Long missionSelectionId)
