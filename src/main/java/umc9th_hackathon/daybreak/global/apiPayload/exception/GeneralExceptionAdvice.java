@@ -3,6 +3,7 @@ package umc9th_hackathon.daybreak.global.apiPayload.exception;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -94,6 +95,13 @@ public class GeneralExceptionAdvice {
                         code,
                         "요청 파라미터 형식이 올바르지 않습니다."
                 ));
+    }
+
+    // 시큐리티가 던진 인증 에러를 여기서 처리
+    @ExceptionHandler(AuthenticationException.class)
+    public ApiResponse<Object> handleAuthenticationException(AuthenticationException e) {
+        BaseErrorCode code = GeneralErrorCode.UNAUTHORIZED;
+        return ApiResponse.onFailure(code, null);
     }
 
     // 그 외의 정의되지 않은 모든 예외 처리
