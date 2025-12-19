@@ -9,10 +9,14 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.RandomGoalResDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
 import umc9th_hackathon.daybreak.domain.mission.entity.Plan;
+import umc9th_hackathon.daybreak.domain.mission.entity.Category;
+import umc9th_hackathon.daybreak.domain.member.entity.Member;
 import umc9th_hackathon.daybreak.domain.mission.exception.InvalidCategoryGoalException;
+import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepository;
 import umc9th_hackathon.daybreak.domain.mission.repository.PlanRepository;
 
 @Service
@@ -20,10 +24,12 @@ public class UpstageLlmService {
     private final WebClient webClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final PlanRepository planRepository;
+    private final MissionSelectionRepository missionSelectionRepository;
 
-    public UpstageLlmService(WebClient upstageWebClient, PlanRepository planRepository) {
+    public UpstageLlmService(WebClient upstageWebClient, PlanRepository planRepository, MissionSelectionRepository missionSelectionRepository) {
         this.webClient = upstageWebClient;
         this.planRepository = planRepository;
+        this.missionSelectionRepository = missionSelectionRepository;
     }
 
     @Transactional
@@ -98,6 +104,58 @@ public class UpstageLlmService {
         );
     }
 
+    @Transactional
+    public RandomGoalResDTO.RandomGoalDTO createRandomGoal(String category, Member member, Category categoryEntity) {
+
+        List<Map<String, Object>> messages = List.of(
+                Map.of("role", "system", "content",
+                        """
+                        당신은 %s 분야 전문 코치입니다.
+                        해당 분야의 1년 뒤 내 모습의 목표를 세워주세요.
+                        50자 이내로 작성해주세요.
+                        
+                        JSON만 출력 (이스케이프/추가텍스트 완전 금지):
+                        {
+                        "목표" : "%s에 관한 구체적인 목표"
+                        }
+                        """.formatted(category, category)
+                ),
+                Map.of("role", "user", "content",
+                        "%s 분야에서 목표를 만들어주세요.".formatted(category))
+        );
+
+        Map<String, Object> request = Map.of(
+                "model", "solar-pro2",
+                "messages", messages,
+                "response_format", Map.of("type", "json_object"),
+                "temperature", 0.5,
+                "max_tokens", 5000
+        );
+
+        String rawResponse = webClient.post()
+                .uri("/solar/chat/completions")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        String content = extractContent(rawResponse);
+        Map<String, String> randomGoalMap = parseRandomGoal(content);
+
+        // MissionSelection 생성 (objective 포함)
+        MissionSelection missionSelection = MissionSelection.builder()
+                .objective(randomGoalMap.get("목표"))
+                .member(member)
+                .category(categoryEntity)
+                .build();
+
+        MissionSelection savedMissionSelection = missionSelectionRepository.save(missionSelection);
+
+        return new RandomGoalResDTO.RandomGoalDTO(
+                savedMissionSelection.getObjective()
+        );
+    }
+
     private void validateCategoryGoal(String category, String goal) {
         // LLM을 이용한 관련성 검증
         String validationPrompt = """
@@ -168,6 +226,20 @@ public class UpstageLlmService {
             return contentNode.asText();
         } catch (Exception e) {
             return "INVALID: 파싱 오류";
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, String> parseRandomGoal(String content) {
+        try {
+            Map<String, Object> goalMap = objectMapper.readValue(content, Map.class);
+            return goalMap.entrySet().stream()
+                    .collect(java.util.stream.Collectors.toMap(
+                            Map.Entry::getKey,
+                            entry -> String.valueOf(entry.getValue())
+                    ));
+        } catch (Exception e) {
+            throw new RuntimeException("랜덤 목표 JSON 파싱 실패: " + content, e);
         }
     }
 }
