@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
-import java.util.Optional;
 
 import java.util.List;
 
@@ -17,6 +16,4 @@ public interface MissionSelectionRepository extends JpaRepository<MissionSelecti
     WHERE s.member.memberId = :memberId
     """)
     List<MissionSelection> findByMemberIdWithMissionAndCategory(@Param("memberId") Long memberId);
-    Optional<MissionSelection> findByMember_MemberId(Long memberId);
-
 }
