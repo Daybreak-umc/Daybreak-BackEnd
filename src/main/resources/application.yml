@@ -20,3 +20,4 @@ openai:
   model: gpt-4o-mini
   api:
     key: ${OPENAI_API_KEY}   # 환경변수에서 주입
+
