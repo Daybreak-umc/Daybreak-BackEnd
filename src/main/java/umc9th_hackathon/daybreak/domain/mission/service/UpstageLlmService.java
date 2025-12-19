@@ -149,10 +149,8 @@ public class UpstageLlmService {
                 .category(categoryEntity)
                 .build();
 
-        MissionSelection savedMissionSelection = missionSelectionRepository.save(missionSelection);
-
         return new RandomGoalResDTO.RandomGoalDTO(
-                savedMissionSelection.getObjective()
+                missionSelection.getObjective()
         );
     }
 
