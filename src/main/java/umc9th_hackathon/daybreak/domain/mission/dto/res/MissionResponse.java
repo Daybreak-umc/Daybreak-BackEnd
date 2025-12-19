@@ -15,7 +15,9 @@ public class MissionResponse {
     // 카테고리 1개 + 해당 카테고리의 미션들
     public record MissionGroupDto(
             String category,
-            List<String> missions
+            List<String> missions,
+            String objective,
+            Long planId
     ) {}
 
     public record MissionCompleteDto(

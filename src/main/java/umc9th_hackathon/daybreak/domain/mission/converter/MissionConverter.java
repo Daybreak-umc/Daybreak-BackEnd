@@ -14,10 +14,12 @@ public class MissionConverter {
 
         List<MissionResponse.MissionGroupDto> groupDtos = selections.stream()
                 .map(sel -> new MissionResponse.MissionGroupDto(
-                        sel.getCategory().getCategoryName(),          // 카테고리 이름
+                        sel.getCategory().getCategoryName(),          // 1. category
                         sel.getMemberMissions().stream()
                                 .map(Mission::getContent)
-                                .collect(Collectors.toList())          // Mission 리스트
+                                .collect(Collectors.toList()),         // 2. missions
+                        sel.getObjective(),                           // 3. objective (엔티티에서 바로 추출)
+                        sel.getMissionSelectionId()                               // 4. planId (엔티티에서 바로 추출)
                 ))
                 .collect(Collectors.toList());
 
