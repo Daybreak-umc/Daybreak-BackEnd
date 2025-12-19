@@ -2,6 +2,7 @@ package umc9th_hackathon.daybreak.domain.mission.dto.res;
 
 import umc9th_hackathon.daybreak.domain.mission.entity.Mission;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class MissionResponse {
@@ -16,4 +17,9 @@ public class MissionResponse {
             String category,
             List<String> missions
     ) {}
+
+    public record MissionCompleteDto(
+            Long missionID,
+            LocalDateTime updatedAt
+    ){}
 }
