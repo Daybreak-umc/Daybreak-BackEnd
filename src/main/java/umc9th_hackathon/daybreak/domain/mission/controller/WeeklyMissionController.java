@@ -23,8 +23,8 @@ public class WeeklyMissionController {
             @RequestBody @Valid WeeklyMissionCreateRequest req
     ) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        assert auth != null;
         String email = auth.getName();
-
         WeeklyMissionCreateResponse res =
                 weeklyMissionService.createWeeklyMissionsByEmail(email, req);
 
