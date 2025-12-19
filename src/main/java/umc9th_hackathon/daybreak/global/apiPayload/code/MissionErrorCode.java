@@ -8,9 +8,11 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum MissionErrorCode implements BaseErrorCode {
 
+    DUPLICATE_GOAL(HttpStatus.CONFLICT, "MISSION409_1", "이미 존재하는 목표입니다."),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "MISSION404_1", "존재하지 않는 카테고리입니다.");
 
     private final HttpStatus status;
     private final String code;
     private final String message;
 }
+
