@@ -12,13 +12,14 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Table(name = "mission_selection")
 public class MissionSelection extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mission_selection_id")
+
     private Long missionSelectionId;
 
     @Column(name = "objective", length = 50, nullable = false)
