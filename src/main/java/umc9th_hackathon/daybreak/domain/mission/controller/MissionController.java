@@ -43,6 +43,7 @@ public class MissionController {
     public ApiResponse<Void> deleteGoal() {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        assert auth != null;
         String email = auth.getName();
 
         missionCommandService.deleteGoalByEmail(email);
