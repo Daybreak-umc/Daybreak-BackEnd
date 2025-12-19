@@ -1,13 +1,13 @@
 package umc9th_hackathon.daybreak.domain.mission.converter;
 
-import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResponse;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
 import umc9th_hackathon.daybreak.domain.mission.entity.Plan;
 
 public class PlanConverter {
-    public static PlanResponse.PlanDto toPlanDto(Plan plan) {
+    public static PlanResDTO.PlanDto toPlanDto(Plan plan) {
         if (plan == null) return null;
 
-        return new PlanResponse.PlanDto(
+        return new PlanResDTO.PlanDto(
                 plan.getWeekPlan(),
                 plan.getMonth1Plan(),
                 plan.getMonth3Plan(),

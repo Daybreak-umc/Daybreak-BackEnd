@@ -27,7 +27,7 @@ public class SecurityConfig {
     private final String[] swaggerUris = {
             "/swagger-ui/**", "/swagger-ui.html",
             "/v3/api-docs/**", "/swagger-resources/**",
-            "/webjars/**", "/healthcheck"
+            "/webjars/**", "/healthcheck", "/chat"
     };
 
     @Bean
