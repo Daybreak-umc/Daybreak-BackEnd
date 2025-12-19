@@ -11,7 +11,9 @@ import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
 import umc9th_hackathon.daybreak.domain.mission.service.PlanService;
 import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
+import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralSuccessCode;
+import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 @RestController
 @RequestMapping("/api/v1/mission")
@@ -25,9 +27,8 @@ public class PlanController implements PlanControllerDocs {
     public ApiResponse<PlanResDTO.PlanDto> createPlan(
             @RequestBody @Valid PlanReqDTO request,
             Authentication authentication) {
-        
-        String email = authentication.getName();
-        PlanResDTO.PlanDto plan = planService.createPlan(request, email);
+
+        PlanResDTO.PlanDto plan = planService.createPlan(request, authentication);
         
         return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, plan);
     }
