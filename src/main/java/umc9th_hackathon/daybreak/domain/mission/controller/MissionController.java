@@ -2,10 +2,8 @@ package umc9th_hackathon.daybreak.domain.mission.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.MissionResponse;
 import umc9th_hackathon.daybreak.domain.mission.exception.MissionSuccessCode;
 import umc9th_hackathon.daybreak.domain.mission.service.MissionCommandService;
@@ -39,5 +37,16 @@ public class MissionController {
         return ApiResponse.onSuccess(
                 MissionSuccessCode.SUCCESS_COMPLETE, missionCommandService.patchMissionComplete(missionId,email)
         );
+    }
+
+    @DeleteMapping("/api/v1/missions/delete")
+    public ApiResponse<Void> deleteGoal() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        missionCommandService.deleteGoalByEmail(email);
+
+        return ApiResponse.onSuccess(MissionSuccessCode.GOAL_DELETED, null);
     }
 }

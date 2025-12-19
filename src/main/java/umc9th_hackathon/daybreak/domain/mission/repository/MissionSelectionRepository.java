@@ -14,6 +14,8 @@ public interface MissionSelectionRepository extends JpaRepository<MissionSelecti
     // weekly_missions에서 쓰는 조회 (Optional 1개)
     Optional<MissionSelection> findByMember_MemberId(Long memberId);
 
+    Optional<MissionSelection> findByMember_Email(String email);
+
     // develop 쪽에서 쓰는 fetch join 조회 (List)
     @Query("""
         SELECT DISTINCT s
