@@ -37,21 +37,6 @@ public class MissionSelection extends BaseEntity {
     @OneToMany(mappedBy = "missionSelection", cascade = CascadeType.ALL)
     private List<Mission> memberMissions = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "missionSelection", cascade = CascadeType.ALL)
-    private List<Plan> plans = new ArrayList<>();
-
-    //변경 메서드
-    public void updateSelection(Category category, String objective) {
-        this.category = category;
-        this.objective = objective;
-    }
-
-    public static MissionSelection create(Member member, Category category, String objective) {
-        return MissionSelection.builder()
-                .member(member)
-                .category(category)
-                .objective(objective)
-                .build();
-    }
+    @OneToOne(mappedBy = "missionSelection", cascade = CascadeType.ALL ,optional = false)
+    private Plan plan;
 }

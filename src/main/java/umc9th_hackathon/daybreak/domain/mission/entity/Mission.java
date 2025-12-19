@@ -28,4 +28,8 @@ public class Mission extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "selection_id")
     private MissionSelection missionSelection;
+
+    public void complete() {
+        this.isSuccess = true;
+    }
 }
