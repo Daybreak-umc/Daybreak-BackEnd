@@ -29,14 +29,6 @@ public class Mission extends BaseEntity {
     @JoinColumn(name = "selection_id")
     private MissionSelection missionSelection;
 
-    public static Mission create(MissionSelection selection, String content) {
-        return Mission.builder()
-                .missionSelection(selection)
-                .content(content)
-                .isSuccess(false) //기본값
-                .build();
-    }
-
     public void complete() {
         this.isSuccess = true;
     }
