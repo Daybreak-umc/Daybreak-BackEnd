@@ -25,6 +25,7 @@
 
 
         // 연관 관계
+        @Builder.Default
         @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
         private List<MissionSelection> missionSelections = new ArrayList<>();
     }

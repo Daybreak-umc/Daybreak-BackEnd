@@ -19,6 +19,7 @@ public class MissionSelection extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mission_selection_id")
+
     private Long missionSelectionId;
 
     @Column(name = "objective", length = 50, nullable = false)
