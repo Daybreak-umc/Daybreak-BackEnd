@@ -3,15 +3,14 @@ package umc9th_hackathon.daybreak.domain.mission.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.RandomGoalReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResponse;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.RandomGoalResDTO;
 import umc9th_hackathon.daybreak.domain.mission.service.PlanService;
+import umc9th_hackathon.daybreak.domain.mission.service.PlanQueryService;
 import umc9th_hackathon.daybreak.domain.mission.service.RandomGoalService;
 import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralSuccessCode;
@@ -22,6 +21,7 @@ import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralSuccessCode;
 public class PlanController implements PlanControllerDocs {
 
     private final PlanService planService;
+    private final PlanQueryService planQueryService;
     private final RandomGoalService randomGoalService;
 
     @Override
@@ -44,5 +44,16 @@ public class PlanController implements PlanControllerDocs {
         RandomGoalResDTO.RandomGoalDTO randomgoal = randomGoalService.createRandomGoal(request, authentication);
 
         return ApiResponse.onSuccess(GeneralSuccessCode.REQUEST_OK, randomgoal);
+    }
+
+    @GetMapping("/timeline")
+    public ApiResponse<PlanResponse.PlanDto> getMissionTimeline(
+            Authentication authentication,
+            @RequestParam(value="planId" , required = false) Long missionSelectionId) {
+
+        return ApiResponse.onSuccess(
+                GeneralSuccessCode.REQUEST_OK,
+                planQueryService.getPlan(authentication, missionSelectionId)
+        );
     }
 }
