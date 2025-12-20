@@ -1,11 +1,15 @@
 package umc9th_hackathon.daybreak.domain.mission.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +18,9 @@ import java.util.Map;
 public class OpenAiMissionClient {
 
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${openai.api-key}")
+    @Value("${openai.api.key}")
     private String apiKey;
 
     @Value("${openai.model}")
@@ -23,14 +28,19 @@ public class OpenAiMissionClient {
 
     public List<String> generateWeeklyMissions(String category, String goal) {
 
-        // “3개만, 구체적으로, 짧게”
         String prompt = """
                 You are a helpful assistant that creates weekly missions.
+
                 Category: %s
                 Goal: %s
+
                 Return exactly 3 missions in Korean.
                 Each mission must be specific, actionable, and short (max 20 words).
-                Output format must be a JSON array of 3 strings. Example: ["...", "...", "..."]
+
+                Output MUST be a JSON object with the following schema:
+                {
+                  "missions": ["string", "string", "string"]
+                }
                 """.formatted(category, goal);
 
         Map<String, Object> body = Map.of(
@@ -38,6 +48,7 @@ public class OpenAiMissionClient {
                 "messages", List.of(
                         Map.of("role", "user", "content", prompt)
                 ),
+                "response_format", Map.of("type", "json_object"),
                 "temperature", 0.7
         );
 
@@ -54,16 +65,40 @@ public class OpenAiMissionClient {
                 Map.class
         );
 
-        // 응답 파싱: choices[0].message.content 가 JSON array 문자열임
         Map<?, ?> resBody = res.getBody();
         if (resBody == null) throw new IllegalStateException("OpenAI response body is null");
 
         List<?> choices = (List<?>) resBody.get("choices");
+        if (choices == null || choices.isEmpty()) throw new IllegalStateException("OpenAI choices is empty");
+
         Map<?, ?> first = (Map<?, ?>) choices.get(0);
         Map<?, ?> message = (Map<?, ?>) first.get("message");
         String content = (String) message.get("content");
 
-        // content가 '["a","b","c"]' 형태라 가정하고 아주 간단 파싱
-        return SimpleJsonArrayParser.parse(content);
+        return parseMissionsFromJsonObject(content);
+    }
+
+    private List<String> parseMissionsFromJsonObject(String content) {
+        try {
+            JsonNode root = objectMapper.readTree(content);
+
+            JsonNode missionsNode = root.get("missions");
+            if (missionsNode == null || !missionsNode.isArray()) {
+                throw new IllegalStateException("OpenAI content.missions is not a JSON array: " + content);
+            }
+
+            List<String> missions = new ArrayList<>();
+            for (JsonNode n : missionsNode) {
+                missions.add(n.asText());
+            }
+
+            if (missions.size() != 3) {
+                throw new IllegalStateException("OpenAI returned " + missions.size() + " missions, expected 3: " + content);
+            }
+
+            return missions;
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Failed to parse OpenAI JSON: " + content, e);
+        }
     }
 }

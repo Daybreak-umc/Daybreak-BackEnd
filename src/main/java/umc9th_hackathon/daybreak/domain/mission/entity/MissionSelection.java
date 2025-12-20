@@ -36,7 +36,11 @@ public class MissionSelection extends BaseEntity {
     private Category category;
 
     @Builder.Default
-    @OneToMany(mappedBy = "missionSelection", cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "missionSelection",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<Mission> memberMissions = new ArrayList<>();
 
     // MissionSelection 당 Plan 1개 (develop 기준)

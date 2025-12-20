@@ -9,6 +9,9 @@ import umc9th_hackathon.daybreak.global.apiPayload.code.BaseSuccessCode;
 @Getter
 @AllArgsConstructor
 public enum MissionSuccessCode implements BaseSuccessCode {
+
+    GOAL_DELETED(HttpStatus.OK,
+            "COMMON_200", "목표가 성공적으로 삭제되었습니다."),
     SUCCESS_COMPLETE(HttpStatus.BAD_REQUEST,
             "MISSION_200",
             "미션이 성공적으로 처리되었습니다.");
