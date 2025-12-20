@@ -27,13 +27,7 @@ public class RandomGoalService {
     private final CategoryRepository categoryRepository;
     private final UpstageLlmService llmService;
 
-        public RandomGoalResDTO.RandomGoalDTO createRandomGoal(RandomGoalReqDTO request, Authentication authentication) {
-
-        if (authentication == null) {
-            throw new GeneralException(GeneralErrorCode.UNAUTHORIZED);
-        }
-
-        String email = authentication.getName();
+        public RandomGoalResDTO.RandomGoalDTO createRandomGoal(RandomGoalReqDTO request, String email) {
 
         // 현재 인증된 사용자 정보 가져오기
         Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
@@ -11,6 +12,7 @@ import umc9th_hackathon.daybreak.domain.mission.dto.req.RandomGoalReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.RandomGoalResDTO;
 import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
+import umc9th_hackathon.daybreak.global.security.MemberDetails;
 
 @Tag(name = "계획 API", description = "AI 기반 목표 설정 및 계획 수립 관련 API")
 public interface PlanControllerDocs {
@@ -20,7 +22,7 @@ public interface PlanControllerDocs {
             description = "사용자가 입력한 카테고리와 목표를 바탕으로 AI가 1년 단위의 단계별 계획을 생성합니다."
     )
     ApiResponse<PlanResDTO.PlanDto> createPlan(
-            @RequestBody @Valid PlanReqDTO request, Authentication authentication
+            @RequestBody @Valid PlanReqDTO request, @AuthenticationPrincipal MemberDetails memberDetails
     );
 
     @Operation(
@@ -28,7 +30,7 @@ public interface PlanControllerDocs {
             description = "선택한 카테고리에 맞는 랜덤한 목표를 AI가 자동으로 생성합니다."
     )
     ApiResponse<RandomGoalResDTO.RandomGoalDTO> createRandom(
-            @RequestBody @Valid RandomGoalReqDTO request, Authentication authentication
+            @RequestBody @Valid RandomGoalReqDTO request, @AuthenticationPrincipal MemberDetails memberDetails
     );
 
     @Operation(
