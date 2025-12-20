@@ -50,7 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(swaggerUris).permitAll() //Swagger 완전 허용
                         .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login").permitAll()// 로그인, 회원가입 허용
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()  // 개발용: 모든 요청 허용
+                        .anyRequest().permitAll()  // 개발용: 모든 요청 허용
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) ->

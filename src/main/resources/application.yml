@@ -28,3 +28,7 @@ openai:
 upstage.api-key: ${UPSTAGE_API_KEY}
 
 
+kakao:
+  client_id: ${REST_API_KEY}
+  redirect_uri: http://localhost:8080/callback
+
