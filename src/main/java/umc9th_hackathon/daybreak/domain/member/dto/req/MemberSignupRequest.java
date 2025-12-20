@@ -22,6 +22,6 @@ public class MemberSignupRequest {
     private String name;
 
     @NotBlank
-    @Length(max = 100)
+    @Length(max = 50)
     private String password;
 }
