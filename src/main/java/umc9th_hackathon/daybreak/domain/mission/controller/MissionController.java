@@ -13,12 +13,13 @@ import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralSuccessCode;
 
 @RestController
 @RequiredArgsConstructor
-public class MissionController {
+public class MissionController implements MissionControllerDocs {
 
     private final MissionQueryService missionQueryService;
     private final MissionCommandService missionCommandService;
 
     @GetMapping("/api/v1/missions")
+    @Override
     public ApiResponse<MissionResponse.MissionGroupListDto> getGroupMissions(Authentication authentication) {
 
         String email = authentication.getName();
@@ -29,8 +30,9 @@ public class MissionController {
     }
 
     @PatchMapping("/api/v1/missions/complete")
+    @Override
     public ApiResponse<MissionResponse.MissionCompleteDto> completeMission(Authentication authentication,
-           @RequestParam(value="missionId") Long missionId
+                                                                           @RequestParam(value = "missionId") Long missionId
     ) {
         String email = authentication.getName();
 
@@ -40,6 +42,7 @@ public class MissionController {
     }
 
     @DeleteMapping("/api/v1/missions/delete")
+    @Override
     public ApiResponse<Void> deleteGoal() {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
