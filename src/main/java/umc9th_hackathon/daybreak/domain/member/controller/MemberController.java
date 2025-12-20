@@ -16,7 +16,7 @@ import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 @RestController
 @RequiredArgsConstructor
-public class MemberController {
+public class MemberController implements MemberControllerDocs{
 
     private final MemberService memberService;
 

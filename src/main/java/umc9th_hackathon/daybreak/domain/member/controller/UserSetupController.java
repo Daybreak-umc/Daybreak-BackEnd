@@ -15,7 +15,7 @@ import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralSuccessCode;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
-public class UserSetupController {
+public class UserSetupController implements UserSetupControllerDocs{
 
     private final UserSetupService userSetupService;
 
