@@ -14,7 +14,7 @@ import umc9th_hackathon.daybreak.global.apiPayload.code.MissionSuccessCode;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/missions")
-public class WeeklyMissionController {
+public class WeeklyMissionController implements WeeklyMissionControllerDocs{
 
     private final WeeklyMissionService weeklyMissionService;
 
