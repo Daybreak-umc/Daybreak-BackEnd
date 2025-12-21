@@ -262,13 +262,7 @@ public class UpstageLlmService {
                 missionSelection.getObjective(),
                 difficultyLevel
         );
-        
-        // 4. Mission 엔티티 생성 및 저장
-        List<Mission> missions = weeklyMissions.stream()
-                .map(content -> Mission.create(missionSelection, content))
-                .toList();
-        
-        missionRepository.saveAll(missions);
+
         
         // 5. 응답 DTO 생성
         LocalDateTime now = LocalDateTime.now();
