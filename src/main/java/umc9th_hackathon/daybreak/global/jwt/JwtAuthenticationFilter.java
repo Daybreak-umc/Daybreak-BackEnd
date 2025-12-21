@@ -52,14 +52,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. JWT 먼저 확인
         String jwt = resolveToken(request);
+
         if (jwt != null && jwtTokenProvider.validateToken(jwt)) {
-            // JWT 처리...
-            filterChain.doFilter(request, response);
-            return;
+
+            if (tokenBlacklist.isBlacklisted(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            Authentication auth = jwtTokenProvider.getAuthentication(jwt);
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
-        // 2. OAuth2 세션 확인 (가장 중요!)
+        filterChain.doFilter(request, response);
+
+
+    // 2. OAuth2 세션 확인 (가장 중요!)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof OAuth2User oAuth2User) {
             String kakaoId = ((OAuth2User) auth.getPrincipal()).getAttribute("id").toString();
