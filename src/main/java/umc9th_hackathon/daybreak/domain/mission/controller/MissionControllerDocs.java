@@ -30,5 +30,5 @@ public interface MissionControllerDocs {
             summary = "목표 삭제",
             description = "현재 사용자의 모든 목표와 관련된 미션들을 삭제합니다."
     )
-    ApiResponse<Void> deleteGoal();
+    ApiResponse<Void> deleteGoal(Authentication authentication);
 }
