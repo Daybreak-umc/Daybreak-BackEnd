@@ -12,6 +12,7 @@ import umc9th_hackathon.daybreak.domain.mission.repository.CategoryRepository;
 import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepository;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.code.MemberErrorCode;
+import umc9th_hackathon.daybreak.global.apiPayload.code.MissionErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 @Service
@@ -22,6 +23,8 @@ public class UserSetupService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final MissionSelectionRepository missionSelectionRepository;
+    private static final int MAX_GOALS_PER_USER = 4;
+
 
     public void setupByEmail(String email, UserSetupRequest req) {
 
@@ -34,6 +37,12 @@ public class UserSetupService {
 
         Category category = categoryRepository.findByCategoryName(req.getCategory())
                 .orElseThrow(() -> new GeneralException(GeneralErrorCode.NOT_FOUND));
+
+        // 유저의 현재 목표 개수 확인
+        long currentGoalCount = missionSelectionRepository.countByMember(member);
+        if (currentGoalCount >= MAX_GOALS_PER_USER) {
+            throw new GeneralException(MissionErrorCode.MAX_GOALS_EXCEEDED);
+        }
 
         // 기존 선택이 있으면 업데이트, 없으면 생성
         MissionSelection selection = missionSelectionRepository

@@ -11,6 +11,9 @@ import umc9th_hackathon.daybreak.domain.member.entity.Member;
 import umc9th_hackathon.daybreak.domain.member.repository.MemberRepository;
 import umc9th_hackathon.daybreak.domain.mission.entity.Category;
 import umc9th_hackathon.daybreak.domain.mission.repository.CategoryRepository;
+import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepository;
+import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
+import umc9th_hackathon.daybreak.global.apiPayload.code.MemberErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.code.MissionErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
@@ -25,7 +28,8 @@ public class RandomGoalService {
     private final UpstageLlmService llmService;
     private final MemberService memberService;
 
-        public RandomGoalResDTO.RandomGoalDTO createRandomGoal(RandomGoalReqDTO request, Authentication authentication) {
+
+    public RandomGoalResDTO.RandomGoalDTO createRandomGoal(RandomGoalReqDTO request, Authentication authentication) {
 
         // 멤버 인증 인가 함수 적용 (카카오, jwt 둘 다)
         Member member = memberService.getCurrentMember(authentication);
