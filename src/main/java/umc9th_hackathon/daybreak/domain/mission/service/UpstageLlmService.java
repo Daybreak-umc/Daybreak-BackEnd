@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +13,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.RandomGoalResDTO;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
+import umc9th_hackathon.daybreak.domain.mission.dto.res.WeeklyMissionResDTO;
+import umc9th_hackathon.daybreak.domain.mission.entity.Mission;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
 import umc9th_hackathon.daybreak.domain.mission.entity.Plan;
 import umc9th_hackathon.daybreak.domain.mission.entity.Category;
 import umc9th_hackathon.daybreak.domain.member.entity.Member;
-import umc9th_hackathon.daybreak.domain.mission.exception.InvalidCategoryGoalException;
 import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepository;
 import umc9th_hackathon.daybreak.domain.mission.repository.PlanRepository;
+import umc9th_hackathon.daybreak.domain.mission.repository.MissionRepository;
+import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
+import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 @Service
 public class UpstageLlmService {
@@ -25,11 +31,15 @@ public class UpstageLlmService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final PlanRepository planRepository;
     private final MissionSelectionRepository missionSelectionRepository;
+    private final MissionRepository missionRepository;
 
-    public UpstageLlmService(WebClient upstageWebClient, PlanRepository planRepository, MissionSelectionRepository missionSelectionRepository) {
+    public UpstageLlmService(WebClient upstageWebClient, PlanRepository planRepository, 
+                           MissionSelectionRepository missionSelectionRepository,
+                           MissionRepository missionRepository) {
         this.webClient = upstageWebClient;
         this.planRepository = planRepository;
         this.missionSelectionRepository = missionSelectionRepository;
+        this.missionRepository = missionRepository;
     }
 
     @Transactional
@@ -178,10 +188,7 @@ public class UpstageLlmService {
         String validationResult = extractValidationContent(validationResponse);
 
         if (!validationResult.trim().equals("VALID")) {
-            throw new InvalidCategoryGoalException(
-                    String.format("카테고리 '%s'와 목표 '%s'가 맞지 않습니다: %s",
-                            category, goal, validationResult)
-            );
+            throw new GeneralException(GeneralErrorCode.BAD_REQUEST);
         }
     }
 
@@ -238,6 +245,126 @@ public class UpstageLlmService {
                     ));
         } catch (Exception e) {
             throw new RuntimeException("랜덤 목표 JSON 파싱 실패: " + content, e);
+        }
+    }
+
+    @Transactional
+    public WeeklyMissionResDTO.WeeklyMissionDTO createWeeklyMissions(MissionSelection missionSelection) {
+        // 1. 난이도 계산 (objective 생성일 기준)
+        String difficultyLevel = calculateDifficultyLevel(missionSelection.getCreateTime());
+        
+        // 2. 기존 미션 삭제 (새로운 주간 미션으로 교체)
+        missionRepository.deleteByMissionSelection(missionSelection);
+        
+        // 3. AI로 주간 미션 3개 생성
+        List<String> weeklyMissions = generateWeeklyMissionsWithAI(
+                missionSelection.getCategory().getCategoryName(),
+                missionSelection.getObjective(),
+                difficultyLevel
+        );
+        
+        // 4. Mission 엔티티 생성 및 저장
+        List<Mission> missions = weeklyMissions.stream()
+                .map(content -> Mission.create(missionSelection, content))
+                .toList();
+        
+        missionRepository.saveAll(missions);
+        
+        // 5. 응답 DTO 생성
+        LocalDateTime now = LocalDateTime.now();
+        return new WeeklyMissionResDTO.WeeklyMissionDTO(
+                missionSelection.getMissionSelectionId(),
+                missionSelection.getObjective(),
+                missionSelection.getCategory().getCategoryName(),
+                weeklyMissions,
+                difficultyLevel,
+                now,
+                now.plusWeeks(1) // 1주일 후 만료
+        );
+    }
+    
+    private String calculateDifficultyLevel(LocalDateTime objectiveCreatedAt) {
+        LocalDateTime now = LocalDateTime.now();
+        long daysSinceCreation = ChronoUnit.DAYS.between(objectiveCreatedAt, now);
+        
+        if (daysSinceCreation < 7) {
+            return "초급"; // 1주일 미만
+        } else if (daysSinceCreation < 30) {
+            return "초중급"; // 1개월 미만
+        } else if (daysSinceCreation < 90) {
+            return "중급"; // 3개월 미만
+        } else if (daysSinceCreation < 180) {
+            return "중고급"; // 6개월 미만
+        } else {
+            return "고급"; // 6개월 이상
+        }
+    }
+    
+    private List<String> generateWeeklyMissionsWithAI(String category, String objective, String difficultyLevel) {
+        List<Map<String, Object>> messages = List.of(
+                Map.of("role", "system", "content",
+                        """
+                        당신은 %s 분야 전문 코치입니다.
+                        사용자의 목표 '%s'를 달성하기 위한 이번 주 미션 3개를 생성해주세요.
+                        
+                        난이도: %s
+                        - 초급: 쉽고 기본적인 미션
+                        - 초중급: 약간의 도전이 있는 미션
+                        - 중급: 적당한 난이도의 미션
+                        - 중고급: 상당한 노력이 필요한 미션
+                        - 고급: 매우 도전적이고 전문적인 미션
+                        
+                        각 미션은 30자 이내로 구체적이고 실행 가능하게 작성해주세요.
+                        
+                        JSON만 출력 (이스케이프/추가텍스트 완전 금지):
+                        {
+                          "미션1": "구체적인 미션 내용",
+                          "미션2": "구체적인 미션 내용", 
+                          "미션3": "구체적인 미션 내용"
+                        }
+                        """.formatted(category, objective, difficultyLevel)
+                ),
+                Map.of("role", "user", "content",
+                        "%s 분야에서 '%s' 목표를 위한 %s 난이도의 이번 주 미션 3개를 만들어주세요."
+                                .formatted(category, objective, difficultyLevel))
+        );
+
+        Map<String, Object> request = Map.of(
+                "model", "solar-pro2",
+                "messages", messages,
+                "response_format", Map.of("type", "json_object"),
+                "temperature", 0.7,
+                "max_tokens", 3000
+        );
+
+        String rawResponse = webClient.post()
+                .uri("/solar/chat/completions")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        String content = extractContent(rawResponse);
+        Map<String, String> missionMap = parseWeeklyMissions(content);
+        
+        return List.of(
+                missionMap.get("미션1"),
+                missionMap.get("미션2"),
+                missionMap.get("미션3")
+        );
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Map<String, String> parseWeeklyMissions(String content) {
+        try {
+            Map<String, Object> missionMap = objectMapper.readValue(content, Map.class);
+            return missionMap.entrySet().stream()
+                    .collect(java.util.stream.Collectors.toMap(
+                            Map.Entry::getKey,
+                            entry -> String.valueOf(entry.getValue())
+                    ));
+        } catch (Exception e) {
+            throw new RuntimeException("주간 미션 JSON 파싱 실패: " + content, e);
         }
     }
 }

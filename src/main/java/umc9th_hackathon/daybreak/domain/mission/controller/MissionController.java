@@ -22,10 +22,9 @@ public class MissionController implements MissionControllerDocs {
     @Override
     public ApiResponse<MissionResponse.MissionGroupListDto> getGroupMissions(Authentication authentication) {
 
-        String email = authentication.getName();
 
         return ApiResponse.onSuccess(
-                GeneralSuccessCode.REQUEST_OK,missionQueryService.getGroupMissions(email)
+                GeneralSuccessCode.REQUEST_OK,missionQueryService.getGroupMissions(authentication)
         );
     }
 
@@ -34,22 +33,17 @@ public class MissionController implements MissionControllerDocs {
     public ApiResponse<MissionResponse.MissionCompleteDto> completeMission(Authentication authentication,
                                                                            @RequestParam(value = "missionId") Long missionId
     ) {
-        String email = authentication.getName();
-
         return ApiResponse.onSuccess(
-                MissionSuccessCode.SUCCESS_COMPLETE, missionCommandService.patchMissionComplete(missionId,email)
+                MissionSuccessCode.SUCCESS_COMPLETE, 
+                missionCommandService.patchMissionComplete(missionId, authentication)
         );
     }
 
     @DeleteMapping("/api/v1/missions/delete")
     @Override
-    public ApiResponse<Void> deleteGoal() {
+    public ApiResponse<Void> deleteGoal(Authentication authentication) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        assert auth != null;
-        String email = auth.getName();
-
-        missionCommandService.deleteGoalByEmail(email);
+        missionCommandService.deleteGoal(authentication);
 
         return ApiResponse.onSuccess(MissionSuccessCode.GOAL_DELETED, null);
     }

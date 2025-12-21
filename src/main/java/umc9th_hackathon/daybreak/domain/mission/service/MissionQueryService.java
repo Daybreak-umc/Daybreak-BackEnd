@@ -2,9 +2,11 @@ package umc9th_hackathon.daybreak.domain.mission.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import umc9th_hackathon.daybreak.domain.member.entity.Member;
 import umc9th_hackathon.daybreak.domain.member.repository.MemberRepository;
+import umc9th_hackathon.daybreak.domain.member.service.MemberService;
 import umc9th_hackathon.daybreak.domain.mission.converter.MissionConverter;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.MissionResponse;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
@@ -22,12 +24,14 @@ public class MissionQueryService {
     private final MemberRepository memberRepository;
     private final MissionSelectionRepository missionSelectionRepository;
     private final MissionConverter missionConverter;
+    private final MemberService memberService;
 
     @Transactional
-    public MissionResponse.MissionGroupListDto getGroupMissions(String email){
+    public MissionResponse.MissionGroupListDto getGroupMissions(Authentication authentication){
 
-        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
-                .orElseThrow(()->new GeneralException(MemberErrorCode.MEMBER_NOT_FOUND));
+        // 멤버 인증 인가 함수 적용 (카카오, jwt 둘 다)
+        Member member = memberService.getCurrentMember(authentication);
+
 
         List<MissionSelection> selections =
                 missionSelectionRepository.findByMemberIdWithMissionAndCategory(member.getMemberId());
