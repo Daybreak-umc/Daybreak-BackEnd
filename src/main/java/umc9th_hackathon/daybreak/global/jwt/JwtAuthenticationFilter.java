@@ -63,7 +63,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication auth = jwtTokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
-        filterChain.doFilter(request, response);
 
 
     // 2. OAuth2 세션 확인 (가장 중요!)
