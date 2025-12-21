@@ -4,7 +4,7 @@ public class RandomGoalResDTO {
 
     public record RandomGoalDTO(
 
-            String category
+            String goal
 
     ) {}
 
