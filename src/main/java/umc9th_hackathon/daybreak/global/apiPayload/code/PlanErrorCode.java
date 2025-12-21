@@ -1,9 +1,8 @@
-package umc9th_hackathon.daybreak.domain.mission.exception;
+package umc9th_hackathon.daybreak.global.apiPayload.code;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import umc9th_hackathon.daybreak.global.apiPayload.code.BaseErrorCode;
 @Getter
 @AllArgsConstructor
 public enum PlanErrorCode  implements BaseErrorCode {

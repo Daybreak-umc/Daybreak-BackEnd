@@ -23,6 +23,7 @@ import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepos
 import umc9th_hackathon.daybreak.domain.mission.repository.PlanRepository;
 import umc9th_hackathon.daybreak.domain.mission.repository.MissionRepository;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
+import umc9th_hackathon.daybreak.global.apiPayload.code.MissionErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 @Service
@@ -264,7 +265,15 @@ public class UpstageLlmService {
                 difficultyLevel
         );
 
-        
+        // 4. Mission 엔티티 생성 및 저장
+        List<Mission> missions = weeklyMissions.stream()
+                .map(missionContent -> Mission.create(missionSelection, missionContent))
+                .toList();
+
+        missionRepository.saveAll(missions);
+
+
+
         // 5. 응답 DTO 생성
         LocalDateTime now = LocalDateTime.now();
         return new WeeklyMissionResDTO.WeeklyMissionDTO(

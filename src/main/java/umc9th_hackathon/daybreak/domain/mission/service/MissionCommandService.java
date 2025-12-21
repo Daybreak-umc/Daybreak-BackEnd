@@ -10,10 +10,10 @@ import umc9th_hackathon.daybreak.domain.mission.converter.MissionConverter;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.MissionResponse;
 import umc9th_hackathon.daybreak.domain.mission.entity.Mission;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
-import umc9th_hackathon.daybreak.domain.mission.exception.MissionErrorCode;
 import umc9th_hackathon.daybreak.domain.mission.repository.MissionRepository;
 import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepository;
 import umc9th_hackathon.daybreak.domain.mission.repository.PlanRepository;
+import umc9th_hackathon.daybreak.global.apiPayload.code.MissionErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 @Service

@@ -7,9 +7,9 @@ import umc9th_hackathon.daybreak.domain.mission.converter.PlanConverter;
 import umc9th_hackathon.daybreak.domain.mission.dto.res.PlanResDTO;
 import umc9th_hackathon.daybreak.domain.mission.entity.MissionSelection;
 import umc9th_hackathon.daybreak.domain.mission.entity.Plan;
-import umc9th_hackathon.daybreak.domain.mission.exception.PlanErrorCode;
 import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepository;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
+import umc9th_hackathon.daybreak.global.apiPayload.code.PlanErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 
