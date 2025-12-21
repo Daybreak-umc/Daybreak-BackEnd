@@ -1,6 +1,5 @@
 package umc9th_hackathon.daybreak.global.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +14,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import umc9th_hackathon.daybreak.domain.member.repository.MemberRepository;
+import umc9th_hackathon.daybreak.domain.member.service.MemberService;
 import umc9th_hackathon.daybreak.global.jwt.JwtAuthenticationFilter;
 import umc9th_hackathon.daybreak.global.jwt.JwtTokenProvider;
 import umc9th_hackathon.daybreak.global.jwt.TokenBlacklist;
@@ -24,11 +25,12 @@ import java.util.List;
 
 @EnableWebSecurity
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenBlacklist tokenBlacklist;
+    private final MemberRepository memberRepository;
+
 
     private final String[] swaggerUris = {
             "/swagger-ui/**", "/swagger-ui.html",
@@ -36,37 +38,54 @@ public class SecurityConfig {
             "/webjars/**", "/healthcheck", "/chat"
     };
 
+    // 생성자 초기화
+    public SecurityConfig(HandlerExceptionResolver handlerExceptionResolver, JwtTokenProvider jwtTokenProvider, TokenBlacklist tokenBlacklist, MemberRepository memberRepository) {
+        this.handlerExceptionResolver = handlerExceptionResolver;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenBlacklist = tokenBlacklist;
+        this.memberRepository = memberRepository;
+    }
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public OAuth2SuccessHandler oAuth2SuccessHandler(MemberService memberService) {
+        return new OAuth2SuccessHandler(memberService);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers(swaggerUris).permitAll() //Swagger 완전 허용
-                        .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login").permitAll()// 로그인, 회원가입 허용
+                        .requestMatchers(swaggerUris).permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()  // 개발용: 모든 요청 허용
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        .anyRequest().authenticated()
                 )
+
+                // 소셜 로그인 핸들러 추가, "성공 Url -> swagger"로 설정.
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                        .defaultSuccessUrl("/swagger-ui/index.html", true)
+                )
+
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) ->
                                 handlerExceptionResolver.resolveException(request, response, null, authException)
                         )
                 )
 
-
-                .formLogin(form -> form.disable())  // 폼 로그인 제거
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, tokenBlacklist),
-                        UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtTokenProvider, tokenBlacklist),
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
@@ -79,8 +98,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // 모든 출처 허용 (로컬 파일 테스트를 위해 setAllowedOriginPatterns 사용)
         configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

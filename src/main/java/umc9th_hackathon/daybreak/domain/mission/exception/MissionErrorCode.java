@@ -18,7 +18,9 @@ public enum MissionErrorCode implements BaseErrorCode {
             HttpStatus.NOT_FOUND,
             "MISSION_404_2",
             "삭제할 목표가 없습니다."
-    );
+    ),
+    CATEGORY_GOAL_MISMATCH(HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS,"MISSION_404_3","카테고리와 목표 사이에 관련성이 없습니다.");
+
     private final HttpStatus status;
     private final String code;
     private final String message;
