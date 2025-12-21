@@ -16,4 +16,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Object> findByEmail(String email);
 
     Optional<Member> findByEmailAndDeletedAtIsNull(String email);
+
+    // 카카오 ID로 멤버 조회
+    Optional<Member> findByKakaoId(String kakaoId);
+
 }

@@ -15,6 +15,10 @@ import java.time.LocalDateTime;
 @Table(name = "member")
 public class Member extends BaseEntity {
 
+    // 카카오 ID
+    @Column(name = "kakao_id", unique = true)
+    private String kakaoId;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long memberId;
