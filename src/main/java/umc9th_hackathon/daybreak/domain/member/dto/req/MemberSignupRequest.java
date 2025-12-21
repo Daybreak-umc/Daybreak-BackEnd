@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 
 @Getter
 @NoArgsConstructor
@@ -14,14 +13,11 @@ public class MemberSignupRequest {
 
     @Email
     @NotBlank
-    @Length(max = 50)
     private String email;
 
     @NotBlank
-    @Length(max = 10)
     private String name;
 
     @NotBlank
-    @Length(max = 50)
     private String password;
 }

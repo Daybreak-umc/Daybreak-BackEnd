@@ -42,8 +42,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // Swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.13'
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+
 
     // OpenAI
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-M6'
