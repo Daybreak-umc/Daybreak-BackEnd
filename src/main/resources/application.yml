@@ -58,4 +58,4 @@ logging:
     org.springframework.security.oauth2: DEBUG
 
 server:
-  base-url: ${SERVER_BASE_URL:http://localhost:8080}
+  base-url: ${SERVER_BASE_URL}
