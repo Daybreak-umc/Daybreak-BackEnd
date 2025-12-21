@@ -152,15 +152,18 @@ public class UpstageLlmService {
         String content = extractContent(rawResponse);
         Map<String, String> randomGoalMap = parseRandomGoal(content);
 
-        // MissionSelection 생성 (objective 포함)
+        // MissionSelection 생성 및 DB 저장
         MissionSelection missionSelection = MissionSelection.builder()
                 .objective(randomGoalMap.get("목표"))
                 .member(member)
                 .category(categoryEntity)
                 .build();
 
+        // DB에 저장
+        MissionSelection savedMissionSelection = missionSelectionRepository.save(missionSelection);
+
         return new RandomGoalResDTO.RandomGoalDTO(
-                missionSelection.getObjective()
+                savedMissionSelection.getObjective()
         );
     }
 
@@ -188,7 +191,7 @@ public class UpstageLlmService {
         String validationResult = extractValidationContent(validationResponse);
 
         if (!validationResult.trim().equals("VALID")) {
-            throw new GeneralException(GeneralErrorCode.BAD_REQUEST);
+            throw new GeneralException(MissionErrorCode.CATEGORY_GOAL_MISMATCH);
         }
     }
 

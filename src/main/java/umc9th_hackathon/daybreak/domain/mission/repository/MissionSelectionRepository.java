@@ -35,6 +35,10 @@ public interface MissionSelectionRepository extends JpaRepository<MissionSelecti
     Optional<MissionSelection> findByMemberAndCategoryAndObjective(
             Member member, Category category, String objective);
 
+    // 유저별 목표 개수 조회
+    long countByMember(Member member);
+
+
 
     /**
      * MissionSelection 생성 시각(createTime) 기준으로 오래된 selection 삭제

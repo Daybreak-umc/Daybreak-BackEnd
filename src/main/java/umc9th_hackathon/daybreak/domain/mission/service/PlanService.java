@@ -24,6 +24,8 @@ public class PlanService {
     private final UpstageLlmService llmService;
     private final MissionSelectionRepository missionSelectionRepository;
     private final CategoryRepository categoryRepository;
+    private final MemberRepository memberRepository;
+    private static final int MAX_GOALS_PER_USER = 4;
     private final MemberService memberService;
 
     public PlanResDTO.PlanDto createPlan(PlanReqDTO request, Authentication authentication) {
@@ -41,6 +43,13 @@ public class PlanService {
                 .ifPresent(ms -> {
                     throw new GeneralException(MissionErrorCode.DUPLICATE_GOAL);
                 });
+
+
+        // 유저의 현재 목표 개수 확인
+        long currentGoalCount = missionSelectionRepository.countByMember(member);
+        if (currentGoalCount >= MAX_GOALS_PER_USER) {
+            throw new GeneralException(MissionErrorCode.MAX_GOALS_EXCEEDED);
+        }
         
         // MissionSelection 생성
         MissionSelection missionSelection = MissionSelection.builder()
