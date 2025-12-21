@@ -12,6 +12,7 @@ import umc9th_hackathon.daybreak.domain.member.repository.MemberRepository;
 import umc9th_hackathon.daybreak.domain.mission.dto.req.PlanReqDTO;
 import umc9th_hackathon.daybreak.domain.mission.entity.Category;
 import umc9th_hackathon.daybreak.domain.mission.repository.CategoryRepository;
+import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepository;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.code.MemberErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.code.MissionErrorCode;
@@ -27,7 +28,8 @@ public class RandomGoalService {
     private final CategoryRepository categoryRepository;
     private final UpstageLlmService llmService;
 
-        public RandomGoalResDTO.RandomGoalDTO createRandomGoal(RandomGoalReqDTO request, Authentication authentication) {
+
+    public RandomGoalResDTO.RandomGoalDTO createRandomGoal(RandomGoalReqDTO request, Authentication authentication) {
 
         if (authentication == null) {
             throw new GeneralException(GeneralErrorCode.UNAUTHORIZED);
