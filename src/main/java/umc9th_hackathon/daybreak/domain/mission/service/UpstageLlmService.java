@@ -16,8 +16,10 @@ import umc9th_hackathon.daybreak.domain.mission.entity.Plan;
 import umc9th_hackathon.daybreak.domain.mission.entity.Category;
 import umc9th_hackathon.daybreak.domain.member.entity.Member;
 import umc9th_hackathon.daybreak.domain.mission.exception.InvalidCategoryGoalException;
+import umc9th_hackathon.daybreak.domain.mission.exception.MissionErrorCode;
 import umc9th_hackathon.daybreak.domain.mission.repository.MissionSelectionRepository;
 import umc9th_hackathon.daybreak.domain.mission.repository.PlanRepository;
+import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
 
 @Service
 public class UpstageLlmService {
@@ -181,10 +183,7 @@ public class UpstageLlmService {
         String validationResult = extractValidationContent(validationResponse);
 
         if (!validationResult.trim().equals("VALID")) {
-            throw new InvalidCategoryGoalException(
-                    String.format("카테고리 '%s'와 목표 '%s'가 맞지 않습니다: %s",
-                            category, goal, validationResult)
-            );
+            throw new GeneralException(MissionErrorCode.CATEGORY_GOAL_MISMATCH);
         }
     }
 
