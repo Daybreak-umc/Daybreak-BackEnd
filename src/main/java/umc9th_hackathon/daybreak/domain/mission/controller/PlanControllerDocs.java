@@ -33,7 +33,7 @@ public interface PlanControllerDocs {
 
     @Operation(
             summary = "미션 타임라인 조회",
-            description = "생성된 계획의 단계별 타임라인을 조회합니다. (1주일, 1개월, 3개월, 6개월, 1년)"
+            description = "생성된 계획의 단계별 타임라인을 조회합니다. (1주일, 1개월, 3개월, 6개월, 1년), mission_selection_id를 입력해야합니다. (각 목표의 unique 값)"
     )
     ApiResponse<PlanResDTO.PlanDto> getMissionTimeline(
             Authentication authentication, @RequestParam(value = "planId") Long missionSelectionId
