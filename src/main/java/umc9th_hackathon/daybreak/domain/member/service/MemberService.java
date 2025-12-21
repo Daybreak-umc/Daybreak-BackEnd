@@ -76,25 +76,25 @@ public class MemberService {
         tokenBlacklist.add(token);
     }
 
-    // 인증을 처리하는 함수, 카카오 로그인일 경우 그 외 분기하여 처리
     public Member getCurrentMember(Authentication authentication) {
         Object principal = authentication.getPrincipal();
 
+        // ✅ JWT 필터나 세션이 바로 Member를 넣어준 경우
+        if (principal instanceof Member member) {
+            return member;
+        }
 
-
-        // OAuth2 (카카오) 로그인인 경우
+        // ✅ OAuth2 (카카오) 로그인인 경우
         if (principal instanceof OAuth2User oAuth2User) {
             String kakaoId = oAuth2User.getAttribute("id").toString();
             return memberRepository.findByKakaoId(kakaoId)
                     .orElseThrow(() -> new GeneralException(MemberErrorCode.MEMBER_NOT_FOUND));
         }
 
-        // 그 밖의 경우 (기본적으로 username = email로 보는 경우) ex.jwt_token
+        // ✅ 그 밖의 경우 (기본적으로 username = email로 보는 경우)
         String email = authentication.getName();
         return memberRepository.findByEmailAndDeletedAtIsNull(email)
                 .orElseThrow(() -> new GeneralException(MemberErrorCode.MEMBER_NOT_FOUND));
-
-
     }
 
     // 카카오 로그인 시 유저 정보가 존재하지 않을 때, 카카오 데이터 기반으로 DB에 회원 정보 저장 (비밀번호의 경우 사용자의 kakaoId를 암호화해서 저장)
