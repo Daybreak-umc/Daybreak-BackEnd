@@ -1,7 +1,9 @@
 package umc9th_hackathon.daybreak.domain.member.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc9th_hackathon.daybreak.domain.member.converter.MemberConverter;
@@ -12,6 +14,7 @@ import umc9th_hackathon.daybreak.domain.member.repository.MemberRepository;
 import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.code.MemberErrorCode;
 import umc9th_hackathon.daybreak.global.apiPayload.exception.GeneralException;
+import umc9th_hackathon.daybreak.global.enums.Role;
 import umc9th_hackathon.daybreak.global.jwt.JwtTokenProvider;
 import umc9th_hackathon.daybreak.global.jwt.TokenBlacklist;
 
@@ -38,6 +41,7 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    // 토큰 기반 로그인 (소셜 로그인 시 사용하지 않음)
     public String login(LoginRequest request) {
         // 1. 이메일 확인
         Member member = (Member) memberRepository.findByEmail(request.getEmail())
@@ -51,6 +55,7 @@ public class MemberService {
         // 3. 로그인 성공 시 토큰 생성 및 반환
         return jwtTokenProvider.createToken(member.getEmail(), member.getRole());
     }
+
     @Transactional
     public void logout(String token) {
         tokenBlacklist.add(token);
@@ -69,6 +74,43 @@ public class MemberService {
 
         // 4. 사용했던 토큰을 블랙리스트에 등록하여 즉시 차단
         tokenBlacklist.add(token);
+    }
+
+    // 인증을 처리하는 함수, 카카오 로그인일 경우 그 외 분기하여 처리
+    public Member getCurrentMember(Authentication authentication) {
+        Object principal = authentication.getPrincipal();
+
+
+
+        // OAuth2 (카카오) 로그인인 경우
+        if (principal instanceof OAuth2User oAuth2User) {
+            String kakaoId = oAuth2User.getAttribute("id").toString();
+            return memberRepository.findByKakaoId(kakaoId)
+                    .orElseThrow(() -> new GeneralException(MemberErrorCode.MEMBER_NOT_FOUND));
+        }
+
+        // 그 밖의 경우 (기본적으로 username = email로 보는 경우) ex.jwt_token
+        String email = authentication.getName();
+        return memberRepository.findByEmailAndDeletedAtIsNull(email)
+                .orElseThrow(() -> new GeneralException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+
+    }
+
+    // 카카오 로그인 시 유저 정보가 존재하지 않을 때, 카카오 데이터 기반으로 DB에 회원 정보 저장 (비밀번호의 경우 사용자의 kakaoId를 암호화해서 저장)
+    @Transactional
+    public Member findOrCreateKakaoUser(String kakaoId, String name) {
+        return memberRepository.findByKakaoId(kakaoId)
+                .orElseGet(() -> {
+                    Member member = Member.builder()
+                            .kakaoId(kakaoId)
+                            .name(name != null ? name : "KakaoUser")
+                            .email("kakao_" + kakaoId.substring(0, 8) + "@example.com")
+                            .password(passwordEncoder.encode(kakaoId))
+                            .role(Role.ROLE_USER)
+                            .build();
+                    return memberRepository.save(member);
+                });
     }
 
 }
