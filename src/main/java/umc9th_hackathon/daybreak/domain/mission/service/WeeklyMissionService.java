@@ -29,7 +29,7 @@ public class WeeklyMissionService {
         Member member = memberService.getCurrentMember(authentication);
 
         // 2. MissionSelection 조회 (사용자 소유 확인)
-        MissionSelection missionSelection = missionSelectionRepository.findById(request.objectiveId())
+        MissionSelection missionSelection = missionSelectionRepository.findById(request.mission_selection_id())
                 .orElseThrow(() -> new GeneralException(MissionErrorCode.CATEGORY_NOT_FOUND));
 
         // 3. 소유권 확인

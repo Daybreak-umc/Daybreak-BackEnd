@@ -17,7 +17,7 @@ import umc9th_hackathon.daybreak.global.apiPayload.code.GeneralSuccessCode;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/mission")
+@RequestMapping("/api/v1/plan")
 public class PlanController implements PlanControllerDocs {
 
     private final PlanService planService;
@@ -25,7 +25,7 @@ public class PlanController implements PlanControllerDocs {
     private final RandomGoalService randomGoalService;
 
     @Override
-    @PostMapping("/plan")
+    @PostMapping
     public ApiResponse<PlanResDTO.PlanDto> createPlan(
             @RequestBody @Valid PlanReqDTO request,
             Authentication authentication

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import umc9th_hackathon.daybreak.domain.member.dto.req.UserSetupRequest;
 import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
 
-@Tag(name = "MemberSetUpAPI", description = "Member 초기 설정API")
+@Tag(name = "사용자 초기 설정 API", description = "Member 초기 설정 API")
 public interface UserSetupControllerDocs {
 
     @Operation(summary = "사용자 초기 설정", description = "사용자가 회원가입을 완료한 직후 앱을 본격적으로 사용 시작 전 입력 사항이다. " +

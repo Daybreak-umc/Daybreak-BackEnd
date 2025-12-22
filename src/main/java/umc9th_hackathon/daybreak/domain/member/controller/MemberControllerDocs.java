@@ -12,7 +12,7 @@ import umc9th_hackathon.daybreak.domain.member.dto.req.MemberSignupRequest;
 import umc9th_hackathon.daybreak.domain.member.dto.res.LoginResponse;
 import umc9th_hackathon.daybreak.global.apiPayload.ApiResponse;
 
-@Tag(name = "Member API", description = "Member 관련 API")
+@Tag(name = "회원 API", description = "jwt 토큰 기반 로그인 관련 API")
 public interface MemberControllerDocs {
 
     @Operation(summary = "회원가입", description = "각각 최대 이름은 10자, 이메일, 비밀번호는 50자로 제한한다. " +
