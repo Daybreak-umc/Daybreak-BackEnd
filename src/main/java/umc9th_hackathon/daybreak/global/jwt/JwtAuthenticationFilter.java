@@ -78,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .kakaoId(kakaoId)
                                 .name(oAuth2User.getAttribute("nickname") != null ?
                                         oAuth2User.getAttribute("nickname").toString() : "KakaoUser")
-                                .email("kakao_" + kakaoId.substring(0, 8) + "@example.com")
+                                .email("kakao_" + kakaoId + "@example.com")
                                 .password(passwordEncoder.encode("OAUTH2_USER"))
                                 .role(Role.ROLE_USER)
                                 .build();

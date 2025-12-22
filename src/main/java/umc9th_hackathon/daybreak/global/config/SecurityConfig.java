@@ -35,7 +35,7 @@ public class SecurityConfig {
     private final String[] swaggerUris = {
             "/swagger-ui/**", "/swagger-ui.html",
             "/v3/api-docs/**", "/swagger-resources/**",
-            "/webjars/**", "/healthcheck", "/chat"
+            "/webjars/**", "/healthcheck", "/chat", "/login/page", "/callback"
     };
 
     // 생성자 초기화

@@ -105,7 +105,7 @@ public class MemberService {
                     Member member = Member.builder()
                             .kakaoId(kakaoId)
                             .name(name != null ? name : "KakaoUser")
-                            .email("kakao_" + kakaoId.substring(0, 8) + "@example.com")
+                            .email("kakao_" + kakaoId + "@example.com")
                             .password(passwordEncoder.encode(kakaoId))
                             .role(Role.ROLE_USER)
                             .build();
