@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  app:
+    image: sharon0320/daybreak:1.0
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: hackaton-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 202520242023
+      MYSQL_DATABASE: hackaton_team_a
+      MYSQL_ALLOW_EMPTY_PASSWORD: no
+    ports:
+      - "3307:3306"  # 호스트 3307 포트로 매핑 (로컬 MySQL과 충돌 방지)
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p202520242023"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge
