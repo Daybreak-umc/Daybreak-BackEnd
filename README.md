@@ -142,23 +142,27 @@ docker-compose up -d
 ### 주요 API 엔드포인트
 
 ```
-# 인증
-POST /api/v1/auth/login          # 로그인
+# 인증 관련
 POST /api/v1/auth/signup         # 회원가입
+POST /api/v1/auth/login          # 로그인
+POST /api/v1/auth/logout         # 로그아웃
+POST /api/v1/auth/kakao          # 카카오 로그인
+DELETE /api/v1/auth/withdrawal   # 회원 탈퇴
+GET  /callback                   # 카카오 OAuth 콜백
 
-# 미션 관리
-GET  /api/v1/missions            # 미션 목록 조회
-PATCH /api/v1/missions/complete  # 미션 완료 처리
-DELETE /api/v1/missions/delete   # 목표 삭제
+# 사용자 설정
+POST /api/v1/users/setup         # 사용자 초기 설정 (카테고리, 목표)
 
 # 계획 관리
-POST /api/v1/mission/plan        # 계획 생성
-POST /api/v1/mission/random      # 랜덤 목표 생성
-GET  /api/v1/mission/timeline    # 타임라인 조회
+POST /api/v1/plan                # 계획 생성
+POST /api/v1/plan/random         # 랜덤 목표 생성
+GET  /api/v1/plan/timeline       # 타임라인 조회
 
-# 주간 미션
-POST /api/v1/weekly-mission      # 주간 미션 생성
-GET  /api/v1/weekly-mission      # 주간 미션 조회
+# 미션 관리
+POST /api/v1/mission/week        # 주간 미션 생성
+GET  /api/v1/mission             # 미션 목록 조회
+PATCH /api/v1/mission/complete   # 미션 완료 처리
+DELETE /api/v1/mission           # 목표 삭제
 ```
 
 ## 🗄 데이터베이스 스키마
